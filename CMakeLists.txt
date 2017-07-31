@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 project(spaceraft)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_PREFIX_PATH /Users/rwblickhan/Developer/Qt5.9/5.9.1/clang_64)

@@ -10,10 +10,10 @@
 #include <QMainWindow>
 
 int main(int argc, char** argv) {
-    std::unique_ptr<QApplication> app(std::make_unique<QApplication>(argc, argv));
-    std::unique_ptr<QMainWindow> mw(std::make_unique<QMainWindow>());
+    std::unique_ptr<QApplication> app(new QApplication(argc, argv));
+    std::unique_ptr<QMainWindow> mw(new QMainWindow());
     mw->show();
-    std::unique_ptr<Viewport> v(std::make_unique<Viewport>(mw.get()));
+    std::unique_ptr<Viewport> v(new Viewport(mw.get()));
     v->show();
     return app->exec();
 }
