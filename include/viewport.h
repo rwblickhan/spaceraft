@@ -4,23 +4,14 @@
 
 #pragma once
 
-#include <QWidget>
-
 #include <bgfx/bgfx.h>
 
-class Viewport : public QWidget {
+class Viewport {
 public:
-    Viewport(QWidget* parent)
-            : QWidget(parent)
+    Viewport()
     {
-        initBGFX();
     }
 
     ~Viewport() {
-        bgfx::shutdown();
     }
-
-private:
-    void initBGFX();
-
 };

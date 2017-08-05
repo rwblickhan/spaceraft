@@ -1,0 +1,12 @@
+language: generic
+os: linux
+script: ./build.sh
+env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
+addons:
+  apt:
+    packages:
+      - g++-5
+      - libsdl2-dev
+    sources: &sources
+      - llvm-toolchain-trusty-4.0
+      - ubuntu-toolchain-r-test
