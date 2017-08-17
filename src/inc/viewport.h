@@ -12,6 +12,7 @@
 
 //std
 #include <memory>
+#include <array>
 
 class Viewport {
 public:
