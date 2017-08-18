@@ -15,6 +15,9 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+//std
+#include <fstream>
+
 namespace {
     static std::array<float, 24> g_icon = {
             -0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -46,8 +49,9 @@ Viewport::Viewport()
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR, 0x00000000);
     bgfx::setViewRect(0, 0, 0, 640, 480);
     bgfx::touch(0);
-    bgfx::FrameBufferHandle fb = bgfx::createFrameBuffer(pd.nwh, 640, 480);
-    bgfx::setViewFrameBuffer(1, fb);
+    //bgfx::FrameBufferHandle fb = bgfx::createFrameBuffer(pd.nwh, 640, 480);
+    //bgfx::setViewFrameBuffer(1, fb);
+    bgfx::setViewFrameBuffer(1, BGFX_INVALID_HANDLE);
     glm::mat4x4 modelMtx;
     bgfx::setTransform(&modelMtx);
     glm::mat4x4 viewMtx = glm::lookAt(glm::vec3(10, 10, 10), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
@@ -59,5 +63,24 @@ Viewport::Viewport()
     vertexDecl.add(bgfx::Attrib::Color0, 3, bgfx::AttribType::Float);
     vertexDecl.end();
     bgfx::VertexBufferHandle vBuf = bgfx::createVertexBuffer(bgfx::makeRef(g_icon.data(), g_icon.size()), vertexDecl);
-    //TODO get the shaders!
+    // create vertex shader
+#if BX_PLATFORM_OSX
+    const std::string vsPath = "/Users/rwblickhan/Developer/spaceraft/shadergen/shaders/metal/vs_basic.bin";
+#endif
+    std::ifstream vsFin(vsPath, std::ios::in | std::ios::binary);
+    std::size_t size = vsFin.tellg();
+    char vsBuf[size];
+    vsFin.read(vsBuf, size);
+    bgfx::ShaderHandle vsHandle = bgfx::createShader(bgfx::copy(vsBuf, size));
+    //create fragment shader
+#if BX_PLATFORM_OSX
+    const std::string fsPath = "/Users/rwblickhan/Developer/spaceraft/shadergen/shaders/metal/vs_basic.bin";
+#endif
+    std::ifstream fsFin(fsPath, std::ios::in | std::ios::binary);
+    size = fsFin.tellg();
+    char fsBuf[size];
+    fsFin.read(fsBuf, size);
+    bgfx::ShaderHandle fsHandle = bgfx::createShader(bgfx::copy(fsBuf, size));
+    bgfx::ProgramHandle basicProgram = bgfx::createProgram(vsHandle, fsHandle, true);
+    bgfx::submit(1, basicProgram);
 }
