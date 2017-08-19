@@ -87,6 +87,6 @@ Viewport::Viewport()
 #endif
     bgfx::ProgramHandle basicProgram = bgfx::createProgram(vsShader, fsShader, true);
     bgfx::submit(1, basicProgram);
-    bgfx::destroyVertexBuffer(vBuf);
-    bgfx::destroyProgram(basicProgram);
+    bgfx::destroy(vBuf);
+    bgfx::destroy(basicProgram);
 }
