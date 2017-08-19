@@ -20,8 +20,6 @@ public:
 
     ~Viewport() { bgfx::shutdown(); }
 
-    void render() {bgfx::touch(0);}
-
 private:
     std::unique_ptr<SDL_Window, void(*)(SDL_Window*)> m_window;
 };

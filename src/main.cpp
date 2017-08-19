@@ -20,8 +20,10 @@ int main(int argc, char** argv) {
             case SDL_KEYDOWN:
                 if (event.key.keysym.sym == SDLK_q)
                     running = false;
+                break;
+            default:
+                break;
         }
-        v->render();
     }
     SDL_Quit();
 }

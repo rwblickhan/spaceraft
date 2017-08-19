@@ -12,18 +12,17 @@
 #include <SDL2/SDL_syswm.h>
 
 //glm
-#include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 //std
 #include <fstream>
 
 namespace {
-    static std::array<float, 24> g_icon = {
-            -0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-            0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, -0.1f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.1f, 0.0f, 0.0f, 0.0f
+    std::array<float, 24> g_icon = {
+            -0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, //left
+            0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,  //right
+            0.0f, 0.0f, -0.1f, 0.0f, 0.0f, 0.0f, //down
+            0.0f, 0.0f, 0.1f, 0.0f, 0.0f, 0.0f   //up
     };
 
     bgfx::ShaderHandle loadShader(const std::string& path) {
@@ -40,7 +39,7 @@ namespace {
 }
 
 Viewport::Viewport()
-    : m_window(SDL_CreateWindow("Main Window", 100, 100, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL),
+    : m_window(SDL_CreateWindow("spaceraft", 100, 100, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL),
                [](SDL_Window* w){SDL_DestroyWindow(w);})
 {
     SDL_SysWMinfo wmi;
@@ -57,12 +56,11 @@ Viewport::Viewport()
 #endif
     bgfx::setPlatformData(pd);
     bgfx::init(bgfx::RendererType::OpenGL);
+    bgfx::setDebug(BGFX_DEBUG_TEXT);
     bgfx::reset(640, 480);
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR, 0x00000000);
-    bgfx::setViewRect(0, 0, 0, 640, 480);
-    bgfx::touch(0);
-    //bgfx::FrameBufferHandle fb = bgfx::createFrameBuffer(pd.nwh, 640, 480);
-    //bgfx::setViewFrameBuffer(1, fb);
+    bgfx::setViewClear(1, BGFX_CLEAR_COLOR, 0x000000ff);
+    bgfx::setViewRect(1, 0, 0, 640, 480);
+    bgfx::dbgTextPrintf(0, 1, 0x0f, "Hello world!");
     bgfx::setViewFrameBuffer(1, BGFX_INVALID_HANDLE);
     glm::mat4x4 modelMtx;
     bgfx::setTransform(&modelMtx);
@@ -75,18 +73,15 @@ Viewport::Viewport()
     vertexDecl.add(bgfx::Attrib::Color0, 3, bgfx::AttribType::Float);
     vertexDecl.end();
     bgfx::VertexBufferHandle vBuf = bgfx::createVertexBuffer(bgfx::makeRef(g_icon.data(), g_icon.size()), vertexDecl);
-
-#if BX_PLATFORM_OSX
+    bgfx::setVertexBuffer(1, vBuf);
+    bgfx::setState(BGFX_STATE_DEFAULT);
     // create vertex shader
-    bgfx::ShaderHandle vsShader = loadShader("/Users/rwblickhan/Developer/spaceraft/shadergen/shaders/metal/vs_basic.bin");
+    bgfx::ShaderHandle vsShader = loadShader("/Users/rwblickhan/Developer/spaceraft/shadergen/shaders/glsl/vs_basic.bin");
     //create fragment shader
-    bgfx::ShaderHandle fsShader = loadShader("/Users/rwblickhan/Developer/spaceraft/shadergen/shaders/metal/vs_basic.bin");
-#else
-    bgfx::ShaderHandle vsShader = BGFX_INVALID_HANDLE;
-    bgfx::ShaderHandle fsShader = BGFX_INVALID_HANDLE;
-#endif
+    bgfx::ShaderHandle fsShader = loadShader("/Users/rwblickhan/Developer/spaceraft/shadergen/shaders/glsl/fs_basic.bin");
     bgfx::ProgramHandle basicProgram = bgfx::createProgram(vsShader, fsShader, true);
     bgfx::submit(1, basicProgram);
+    bgfx::frame();
     bgfx::destroy(vBuf);
     bgfx::destroy(basicProgram);
 }
