@@ -25,6 +25,18 @@ namespace {
             0.0f, 0.0f, -0.1f, 0.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.1f, 0.0f, 0.0f, 0.0f
     };
+
+    bgfx::ShaderHandle loadShader(const std::string& path) {
+        std::fstream fin(path, std::ios::in | std::ios::binary);
+        fin.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+        fin.seekg(0, fin.end);
+        const bgfx::Memory* buf = bgfx::alloc(fin.tellg());
+        fin.seekg(fin.beg);
+
+        fin.read(reinterpret_cast<char*>(buf->data), buf->size);
+        return bgfx::createShader(buf);
+    }
 }
 
 Viewport::Viewport()
@@ -63,24 +75,18 @@ Viewport::Viewport()
     vertexDecl.add(bgfx::Attrib::Color0, 3, bgfx::AttribType::Float);
     vertexDecl.end();
     bgfx::VertexBufferHandle vBuf = bgfx::createVertexBuffer(bgfx::makeRef(g_icon.data(), g_icon.size()), vertexDecl);
+
+#if BX_PLATFORM_OSX
     // create vertex shader
-#if BX_PLATFORM_OSX
-    const std::string vsPath = "/Users/rwblickhan/Developer/spaceraft/shadergen/shaders/metal/vs_basic.bin";
-#endif
-    std::ifstream vsFin(vsPath, std::ios::in | std::ios::binary);
-    std::size_t size = vsFin.tellg();
-    char vsBuf[size];
-    vsFin.read(vsBuf, size);
-    bgfx::ShaderHandle vsHandle = bgfx::createShader(bgfx::copy(vsBuf, size));
+    bgfx::ShaderHandle vsShader = loadShader("/Users/rwblickhan/Developer/spaceraft/shadergen/shaders/metal/vs_basic.bin");
     //create fragment shader
-#if BX_PLATFORM_OSX
-    const std::string fsPath = "/Users/rwblickhan/Developer/spaceraft/shadergen/shaders/metal/vs_basic.bin";
+    bgfx::ShaderHandle fsShader = loadShader("/Users/rwblickhan/Developer/spaceraft/shadergen/shaders/metal/vs_basic.bin");
+#else
+    bgfx::ShaderHandle vsShader = BGFX_INVALID_HANDLE;
+    bgfx::ShaderHandle fsShader = BGFX_INVALID_HANDLE;
 #endif
-    std::ifstream fsFin(fsPath, std::ios::in | std::ios::binary);
-    size = fsFin.tellg();
-    char fsBuf[size];
-    fsFin.read(fsBuf, size);
-    bgfx::ShaderHandle fsHandle = bgfx::createShader(bgfx::copy(fsBuf, size));
-    bgfx::ProgramHandle basicProgram = bgfx::createProgram(vsHandle, fsHandle, true);
+    bgfx::ProgramHandle basicProgram = bgfx::createProgram(vsShader, fsShader, true);
     bgfx::submit(1, basicProgram);
+    bgfx::destroyVertexBuffer(vBuf);
+    bgfx::destroyProgram(basicProgram);
 }
